@@ -1,12 +1,20 @@
-from flask import Flask, jsonify, request
 import os
+from flask import Flask, jsonify, request
 import prometheus_client
 
 app = Flask(__name__)
 
 # Define Prometheus metrics
-REQUEST_COUNT = prometheus_client.Counter("flask_app_requests_total","Total number of requests",["method", "endpoint", "http_status"])
-REQUEST_LATENCY = prometheus_client.Histogram("flask_app_request_duration_seconds","Histogram of request processing time",["method", "endpoint"])
+REQUEST_COUNT = prometheus_client.Counter(
+    "flask_app_requests_total",
+    "Total number of requests",
+    ["method", "endpoint", "http_status"]
+)
+REQUEST_LATENCY = prometheus_client.Histogram(
+    "flask_app_request_duration_seconds",
+    "Histogram of request processing time",
+    ["method", "endpoint"]
+)
 
 # Default route
 @app.route("/")
@@ -32,7 +40,7 @@ def config():
         api_base_url = os.getenv("API_BASE_URL")
         log_level = os.getenv("LOG_LEVEL")
         max_connections = os.getenv("MAX_CONNECTIONS")
-        
+
         # Return the config information
         return jsonify({
             "message": "Config and secrets accessed",
@@ -46,7 +54,10 @@ def config():
 # Prometheus metrics endpoint
 @app.route("/metrics")
 def metrics():
-    return prometheus_client.generate_latest(), 200, {"Content-Type": prometheus_client.CONTENT_TYPE_LATEST}
+    """Exposes Prometheus metrics."""
+    return prometheus_client.generate_latest(), 200, {
+        "Content-Type": prometheus_client.CONTENT_TYPE_LATEST
+    }
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
