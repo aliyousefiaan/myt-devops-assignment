@@ -106,3 +106,5 @@ affinity: {}
 poddisruptionbudget:
   enabled: false
   minAvailable: 1
+
+env: []
