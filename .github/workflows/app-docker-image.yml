@@ -8,7 +8,7 @@ on:
         - "app/**"  # Trigger only if changes occur in the /app directory
 
 jobs:
-  publish:
+  app-docker-image:
     runs-on: ubuntu-latest
 
     steps:
