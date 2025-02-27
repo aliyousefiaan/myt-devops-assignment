@@ -52,7 +52,7 @@ service:
   # This sets the service type
   type: ClusterIP
   # This sets the ports
-  port: 80
+  port: 5000
 
 # This block is for setting up the ingress
 ingress:
@@ -76,8 +76,8 @@ resources:
     cpu: 100m
     memory: 128Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 200m
+    memory: 256Mi
 
 # This is to setup the liveness and readiness probes
 livenessProbe:
@@ -102,3 +102,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+poddisruptionbudget:
+  enabled: false
+  minAvailable: 1
