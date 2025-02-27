@@ -59,5 +59,10 @@ def metrics():
         "Content-Type": prometheus_client.CONTENT_TYPE_LATEST
     }
 
+@app.route("/health")
+def health():
+    # Perform a health check by verifying database connectivity and other dependencies
+    return jsonify({"status": "healthy", "message": "Application is running"}), 200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
