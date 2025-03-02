@@ -26,14 +26,14 @@ resource "kubernetes_manifest" "app_external_secret" {
         {
           "secretKey" = "db_password"
           "remoteRef" = {
-            "key"      = "${var.project}/${var.environment}/app/secrets"
+            "key"      = "${var.environment}/app/secrets"
             "property" = "db_password"
           }
         },
         {
           "secretKey" = "secret_key"
           "remoteRef" = {
-            "key"      = "${var.project}/${var.environment}/app/secrets"
+            "key"      = "${var.environment}/app/secrets"
             "property" = "secret_key"
           }
         }
@@ -48,4 +48,18 @@ resource "helm_release" "app_helm_release" {
   chart            = "../helm"
   create_namespace = false
   atomic           = true
+
+  values = [templatefile("${path.module}/templates/app_helm_values.yaml.tpl", {
+    env             = var.environment
+    aws_region      = var.aws_region
+    certificate-arn = module.acm.acm_certificate_arn
+    public_domain   = var.public_domain
+    replicaCount    = var.app_configurations.replicaCount
+    cpu_requests    = var.app_configurations.cpu_requests
+    memory_requests = var.app_configurations.memory_requests
+    cpu_limits      = var.app_configurations.cpu_limits
+    memory_limits   = var.app_configurations.memory_limits
+    minReplicas     = var.app_configurations.minReplicas
+    maxReplicas     = var.app_configurations.maxReplicas
+  })]
 }

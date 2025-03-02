@@ -48,5 +48,12 @@ eks_main_managed_node_group_general_settings = {
 }
 
 app_configurations = {
-  namespace = "app"
+  namespace       = "app"
+  replicaCount    = "2"
+  cpu_requests    = "100m"
+  memory_requests = "128Mi"
+  cpu_limits      = "200m"
+  memory_limits   = "256Mi"
+  minReplicas     = "2"
+  maxReplicas     = "5"
 }

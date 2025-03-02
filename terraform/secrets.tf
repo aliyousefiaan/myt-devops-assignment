@@ -11,7 +11,7 @@ resource "random_password" "app_db_password" {
 }
 
 resource "aws_secretsmanager_secret" "app_secrets" {
-  name = "${var.project}/${var.environment}/app/secrets"
+  name = "${var.environment}/app/secrets"
   tags = local.tags
 }
 
