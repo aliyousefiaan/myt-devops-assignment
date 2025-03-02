@@ -243,11 +243,11 @@ resource "kubernetes_manifest" "cluster_secret_store" {
 
 # EKS - main - kube-prometheus
 resource "helm_release" "kube_prometheus" {
-  name       = "kube-prometheus"
-  namespace  = "monitoring"
-  chart      = "kube-prometheus-stack"
-  repository = "https://prometheus-community.github.io/helm-charts"
-  version    = var.eks_main_configurations.kube_prometheus.version
+  name             = "kube-prometheus"
+  namespace        = "monitoring"
+  chart            = "kube-prometheus-stack"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  version          = var.eks_main_configurations.kube_prometheus.version
   create_namespace = true
   atomic           = true
 
@@ -265,8 +265,11 @@ resource "helm_release" "kube_prometheus" {
       defaultRules = {
         create = false
       }
+      kubernetesServiceMonitors = {
+        enabled = false
+      }
       grafana = {
-        enabled = true
+        enabled                  = true
         defaultDashboardsEnabled = false
         persistence = {
           enabled          = true
