@@ -240,3 +240,80 @@ resource "kubernetes_manifest" "cluster_secret_store" {
     helm_release.eks_main_external_secrets
   ]
 }
+
+# EKS - main - kube-prometheus
+resource "helm_release" "kube_prometheus" {
+  name       = "kube-prometheus"
+  namespace  = "monitoring"
+  chart      = "kube-prometheus-stack"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  version    = var.eks_main_configurations.kube_prometheus.version
+  create_namespace = true
+  atomic           = true
+
+  values = [
+    yamlencode({
+      alertmanager = {
+        enabled = false
+      }
+      kubeStateMetrics = {
+        enabled = false
+      }
+      nodeExporter = {
+        enabled = false
+      }
+      defaultRules = {
+        create = false
+      }
+      grafana = {
+        enabled = true
+        defaultDashboardsEnabled = false
+        persistence = {
+          enabled          = true
+          type             = "pvc"
+          accessModes      = ["ReadWriteOnce"]
+          size             = var.eks_main_configurations.kube_prometheus.grafana_storage_size
+          storageClassName = "gp2"
+        }
+        resources = {
+          requests = {
+            cpu    = var.eks_main_configurations.kube_prometheus.grafana_resources.requests.cpu
+            memory = var.eks_main_configurations.kube_prometheus.grafana_resources.requests.memory
+          }
+          limits = {
+            cpu    = var.eks_main_configurations.kube_prometheus.grafana_resources.limits.cpu
+            memory = var.eks_main_configurations.kube_prometheus.grafana_resources.limits.memory
+          }
+        }
+      }
+      prometheus = {
+        enabled = true
+        prometheusSpec = {
+          resources = {
+            requests = {
+              cpu    = var.eks_main_configurations.kube_prometheus.prometheus_resources.requests.cpu
+              memory = var.eks_main_configurations.kube_prometheus.prometheus_resources.requests.memory
+            }
+            limits = {
+              cpu    = var.eks_main_configurations.kube_prometheus.prometheus_resources.limits.cpu
+              memory = var.eks_main_configurations.kube_prometheus.prometheus_resources.limits.memory
+            }
+          }
+          storageSpec = {
+            volumeClaimTemplate = {
+              spec = {
+                accessModes = ["ReadWriteOnce"]
+                resources = {
+                  requests = {
+                    storage = var.eks_main_configurations.kube_prometheus.prometheus_storage_size
+                  }
+                }
+                storageClassName = "gp2"
+              }
+            }
+          }
+        }
+      }
+    })
+  ]
+}

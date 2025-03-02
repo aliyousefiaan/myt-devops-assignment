@@ -41,3 +41,11 @@ resource "kubernetes_manifest" "app_external_secret" {
     }
   }
 }
+
+resource "helm_release" "app_helm_release" {
+  name             = "app"
+  namespace        = var.app_configurations.namespace
+  chart            = "../helm"
+  create_namespace = false
+  atomic           = true
+}

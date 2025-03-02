@@ -24,7 +24,37 @@ variable "public_domain" {
 }
 
 variable "eks_main_configurations" {
-  type = map(any)
+  type = object({
+    cluster_version          = string
+    alb_controller_version   = string
+    external_dns_version     = string
+    external_secrets_version = string
+    kube_prometheus = object({
+      version                 = string
+      grafana_storage_size    = string
+      prometheus_storage_size = string
+      grafana_resources = object({
+        requests = object({
+          cpu    = string
+          memory = string
+        })
+        limits = object({
+          cpu    = string
+          memory = string
+        })
+      })
+      prometheus_resources = object({
+        requests = object({
+          cpu    = string
+          memory = string
+        })
+        limits = object({
+          cpu    = string
+          memory = string
+        })
+      })
+    })
+  })
 }
 
 variable "eks_main_managed_node_group_general_settings" {
