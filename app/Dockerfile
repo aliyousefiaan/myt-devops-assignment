@@ -2,12 +2,9 @@ ARG PYTHON_VERSION=3.12.9
 
 FROM python:${PYTHON_VERSION}-alpine
 
-# Prevents Python from writing pyc files.
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
-ENV PYTHONUNBUFFERED=1
+# Prevents Python from writing pyc files. + Keeps Python from buffering stdout and stderr.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 EXPOSE 5000
 
@@ -21,4 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Use non root user for security
 USER 1000
 
-ENTRYPOINT ["python3", "app.py"]
+ENTRYPOINT ["waitress-serve"]
+
+CMD ["--host=0.0.0.0", "--port=5000", "app:app"]
