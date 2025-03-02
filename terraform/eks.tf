@@ -190,7 +190,7 @@ resource "helm_release" "eks_main_external_secrets" {
   name             = "external-secrets"
   repository       = "https://charts.external-secrets.io"
   chart            = "external-secrets"
-  version          = "0.14.3"
+  version          = var.eks_main_configurations.external_secrets_version
   namespace        = "external-secrets"
   create_namespace = true
   atomic           = true

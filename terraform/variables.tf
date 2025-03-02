@@ -36,3 +36,7 @@ variable "eks_main_managed_node_group_general_settings" {
     capacity_type  = string
   })
 }
+
+variable "app_configurations" {
+  type = map(any)
+}

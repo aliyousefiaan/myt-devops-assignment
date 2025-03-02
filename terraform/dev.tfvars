@@ -11,6 +11,7 @@ eks_main_configurations = {
   cluster_version        = "1.31"
   alb_controller_version = "1.11.0"
   external_dns_version   = "1.15.2"
+  external_secrets_version = "0.14.3"
 }
 
 eks_main_managed_node_group_general_settings = {
@@ -19,4 +20,8 @@ eks_main_managed_node_group_general_settings = {
   max_size       = 3
   instance_types = ["t3.small"]
   capacity_type  = "ON_DEMAND"
+}
+
+app_configurations = {
+  namespace = "app"
 }
