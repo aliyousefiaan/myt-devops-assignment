@@ -84,10 +84,14 @@ livenessProbe:
   httpGet:
     path: /health
     port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
 readinessProbe:
   httpGet:
     path: /health
     port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
 
 # This section is for setting up autoscaling
 autoscaling:
@@ -108,3 +112,42 @@ poddisruptionbudget:
   minAvailable: 1
 
 env: []
+  # - SECRET_KEY=your_secret_key
+  # - DB_PASSWORD=your_db_password
+  # - API_BASE_URL=https://api.example.com
+  # - LOG_LEVEL=info
+  # - MAX_CONNECTIONS=100
+
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+servicemonitor:
+  enabled: false
+  interval: 30s
+  path: /metrics
+  port: http
+
+networkpolicy:
+  enabled: false
+  # policy:
+  #   policyTypes:
+  #     - Ingress
+  #     - Egress
+  #   ingress:
+  #     - from:
+  #         - podSelector:
+  #             matchLabels:
+  #               app: frontend
+  #   egress:
+  #     - to:
+  #         - podSelector:
+  #             matchLabels:
+  #               app: db
