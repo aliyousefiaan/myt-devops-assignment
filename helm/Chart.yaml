@@ -1,6 +1,6 @@
 apiVersion: v2
-name: pyapp
-description: Pyapp Helm chart for Kubernetes
+name: app
+description: app Helm chart for Kubernetes
 
 type: application
 

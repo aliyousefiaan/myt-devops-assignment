@@ -133,7 +133,7 @@ module "irsa_eks_main_external_dns" {
   oidc_providers = {
     ex = {
       provider_arn               = module.eks_main.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:external-dns"]
+      namespace_service_accounts = ["external-dns:external-dns"]
     }
   }
 
@@ -145,8 +145,8 @@ resource "helm_release" "eks_main_external-dns" {
   repository       = "https://kubernetes-sigs.github.io/external-dns/"
   chart            = "external-dns"
   version          = var.eks_main_configurations.external_dns_version
-  namespace        = "kube-system"
-  create_namespace = false
+  namespace        = "external-dns"
+  create_namespace = true
   atomic           = true
 
   values = [
@@ -164,5 +164,79 @@ resource "helm_release" "eks_main_external-dns" {
 
   depends_on = [
     module.eks_main, module.irsa_eks_main_external_dns
+  ]
+}
+
+# EKS - main - external-secrets
+module "irsa_eks_main_external_secrets" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.52.0"
+
+  role_name = "eks-main-external-secrets-${var.environment}"
+
+  attach_external_secrets_policy = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks_main.oidc_provider_arn
+      namespace_service_accounts = ["external-secrets:external-secrets"]
+    }
+  }
+
+  tags = local.tags
+}
+
+resource "helm_release" "eks_main_external_secrets" {
+  name             = "external-secrets"
+  repository       = "https://charts.external-secrets.io"
+  chart            = "external-secrets"
+  version          = "0.14.3"
+  namespace        = "external-secrets"
+  create_namespace = true
+  atomic           = true
+
+  values = [
+    yamlencode({
+      serviceAccount = {
+        create = true
+        annotations = {
+          "eks.amazonaws.com/role-arn" = module.irsa_eks_main_external_secrets.iam_role_arn
+        }
+      }
+    })
+  ]
+
+  depends_on = [
+    module.eks_main,
+    module.irsa_eks_main_external_secrets
+  ]
+}
+
+resource "kubernetes_manifest" "cluster_secret_store" {
+  manifest = {
+    "apiVersion" = "external-secrets.io/v1beta1"
+    "kind"       = "ClusterSecretStore"
+    "metadata" = {
+      "name" = "aws-secrets-manager"
+    }
+    "spec" = {
+      "provider" = {
+        "aws" = {
+          "service" = "SecretsManager"
+          "region"  = var.aws_region
+          "auth" = {
+            "jwt" = {
+              "serviceAccountRef" = {
+                "name"      = "external-secrets"
+                "namespace" = "external-secrets"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  depends_on = [
+    helm_release.eks_main_external_secrets
   ]
 }
