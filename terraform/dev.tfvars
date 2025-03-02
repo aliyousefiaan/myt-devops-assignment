@@ -12,6 +12,7 @@ eks_main_configurations = {
   alb_controller_version   = "1.11.0"
   external_dns_version     = "1.15.2"
   external_secrets_version = "0.14.3"
+  metrics_server_version   = "3.12.2"
   kube_prometheus = {
     version                 = "69.6.0"
     grafana_storage_size    = "1Gi"

@@ -29,6 +29,7 @@ variable "eks_main_configurations" {
     alb_controller_version   = string
     external_dns_version     = string
     external_secrets_version = string
+    metrics_server_version   = string
     kube_prometheus = object({
       version                 = string
       grafana_storage_size    = string
