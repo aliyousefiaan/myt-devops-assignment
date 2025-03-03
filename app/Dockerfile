@@ -2,7 +2,6 @@ ARG PYTHON_VERSION=3.12.9
 
 FROM python:${PYTHON_VERSION}-alpine
 
-# Prevents Python from writing pyc files. + Keeps Python from buffering stdout and stderr.
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
