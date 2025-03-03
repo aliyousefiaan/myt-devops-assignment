@@ -118,8 +118,8 @@ Kubernetes uses probes to determine if a pod is healthy and ready to serve traff
 - GitOps Deployment: Utilize FluxCD or ArgoCD to automate Kubernetes deployments by continuously syncing with the Git repository.
 - Automatic Secret Rotation: Implement AWS Lambda functions to periodically rotate and update secrets in AWS Secrets Manager.
 - Use Karpenter or Cluster Autoscaler to Ensure that EKS scales nodes up/down as needed.
-- Use WAF on ALB
-- Use security group for pod feature to enhance security
+- Use WAF on ALB.
+- Use security group for pod feature to enhance security.
 
 ## Deploy
 ### Pre-requirements
@@ -180,7 +180,7 @@ A production-ready networking strategy on AWS involves multiple layers of securi
   - I would add more subnets and seprate app and db subnets.
 - Load Balancing & Ingress: AWS ALB is used to manage incoming traffic with SSL termination via AWS ACM.
 - Network Security:
-  - Security Groups & Network Policies: Strict rules are applied to allow only necessary traffic.
+  - Security Groups: Strict rules are applied to allow only necessary traffic.
   - NAT Gateway: Used to allow private instances to access the internet while blocking inbound traffic.
   - I would use WAF, security groups for pods and NACL.
 - High Availability & Multi-AZ Strategy: Resources are spread across multiple availability zones to prevent a single point of failure.
@@ -188,7 +188,7 @@ A production-ready networking strategy on AWS involves multiple layers of securi
 Also would consider different AWS accounts for different environments.
 
 ### Describe how you would implement a solution to grant access to various AWS services to the deployed application.
-This project needs access to AWS services like Secrets Manager and Route 53. Instead of storing credentials in the applications, AWS Identity and Access Management (IAM) roles are used:
+The applications in this project needs access to AWS services like Secrets Manager and Route 53. Instead of storing credentials in the applications, AWS Identity and Access Management (IAM) roles are used:
 
 #### IAM Roles & Service Accounts
 The applications are assigned an IAM role using Kubernetes Service Accounts and AWS IAM integration (IAM Roles for Service Accounts - IRSA).
