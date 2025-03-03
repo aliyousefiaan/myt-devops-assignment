@@ -49,6 +49,8 @@ The helm chart of the application. The Helm chart uses a values.yml file to conf
 ## Terraform (/terraform)
 This directory includes Terraform files for deploying infrastructure on AWS. The various AWS services such as VPC, Route53, S3, EKS, IAM, ACM, ASM and etc. are utilized for the infrastructure.
 
+As AWS and infrastructure were not the primary requirements of the project, I kept them minimal and simple while still trying to adopt best practices to ensure a secure and scalable setup.
+
 ### Features
 - kube-prometheus-stack: Provides monitoring, and dashboards (Prometheus, Grafana).
 - External Secrets Operator: Syncs secrets from AWS Secrets Manager to Kubernetes.
@@ -115,6 +117,9 @@ Kubernetes uses probes to determine if a pod is healthy and ready to serve traff
 - Use a logging system like ELK (Elasticsearch, Logstash, Kibana) or Loki for collecting logs.
 - GitOps Deployment: Utilize FluxCD or ArgoCD to automate Kubernetes deployments by continuously syncing with the Git repository.
 - Automatic Secret Rotation: Implement AWS Lambda functions to periodically rotate and update secrets in AWS Secrets Manager.
+- Use Karpenter or Cluster Autoscaler to Ensure that EKS scales nodes up/down as needed.
+- Use WAF on ALB
+- Use security group for pod feature to enhance security
 
 ## Deploy
 ### Pre-requirements
@@ -155,16 +160,97 @@ https://app.myt-devops-assignment.myclnet.com/
 ## Assignment questions
 
 ### Explain the decisions made during the design and implementation of the solution.
+The design decisions for this project were centered around security, scalability, and automation. The following key choices were made:
+
+- Containerization & Security: The application is containerized using Docker and runs on Kubernetes with strict security policies (non-root user, restricted privileges, and network policies).
+- Infrastructure as Code (IaC): Terraform was used to manage AWS resources, ensuring reproducibility and consistency.
+- Kubernetes Deployment: The application is deployed using Helm charts to simplify management and maintainability.
+- Monitoring & Observability: Prometheus and Grafana were integrated for monitoring, with ServiceMonitor resources ensuring Prometheus can collect application metrics.
+- Networking & Load Balancing: AWS ALB was chosen as the ingress controller to securely expose the application, leveraging AWS ACM for TLS termination.
+- Secrets Management: AWS Secrets Manager was used in conjunction with External Secrets Operator to manage sensitive data securely.
+- CI/CD Automation: GitHub Actions were used to automate building the application to improve efficiency and minimize human errors.
 
 ### Explain the networking strategy you would adopt to deploy production ready applications on AWS.
+A production-ready networking strategy on AWS involves multiple layers of security, scalability, and redundancy:
+
+- Custom VPC Design: A custom AWS VPC is used with private and public subnets to ensure proper segmentation.
+- Subnet Configuration:
+  - Public Subnets: Used for external-facing services such as the ALB.
+  - Private Subnets: Used for Kubernetes nodes, databases, and internal services.
+  - I would add more subnets and seprate app and db subnets.
+- Load Balancing & Ingress: AWS ALB is used to manage incoming traffic with SSL termination via AWS ACM.
+- Network Security:
+  - Security Groups & Network Policies: Strict rules are applied to allow only necessary traffic.
+  - NAT Gateway: Used to allow private instances to access the internet while blocking inbound traffic.
+  - I would use WAF, security groups for pods and NACL.
+- High Availability & Multi-AZ Strategy: Resources are spread across multiple availability zones to prevent a single point of failure.
+
+Also would consider different AWS accounts for different environments.
 
 ### Describe how you would implement a solution to grant access to various AWS services to the deployed application.
+This project needs access to AWS services like Secrets Manager and Route 53. Instead of storing credentials in the applications, AWS Identity and Access Management (IAM) roles are used:
+
+#### IAM Roles & Service Accounts
+The applications are assigned an IAM role using Kubernetes Service Accounts and AWS IAM integration (IAM Roles for Service Accounts - IRSA).
+This allows the application to retrieve credentials dynamically without hardcoding secrets.
+
+#### External Secrets Operator
+Syncs secrets from AWS Secrets Manager into Kubernetes secrets.
+The applications retrieves database credentials and other sensitive values from these secrets.
 
 ### Describe how would you automate deploying the solution across multiple environments using CI/CD.
+To automate deployments across multiple environments, I would adopt a GitOps approach using tools like ArgoCD and FluxCD to deploy and manage applications on Kubernetes, ensuring they are always in sync with the desired state stored in Git. Additionally, for infrastructure provisioning, I would use CI/CD tools like GitHub Actions or GitLab CI/CD to manage Terraform deployments across different AWS accounts, applying different configurations for each environment.
+
+#### GitOps for Kubernetes Deployment
+For managing application deployments, I would leverage GitOps tools like ArgoCD or FluxCD, which continuously monitor Git repositories for changes and automatically apply updates to Kubernetes.
+
+Environment-Based Deployment Customization:
+- Use separate branches or directories in the Git repository for dev, staging, and production environments.
+- Each environment has a customized Helm values.yaml file or Kustomize overlays to handle environment-specific configurations.
+
+#### CI/CD for Infrastructure Provisioning Using Terraform
+For infrastructure provisioning, I would use GitHub Actions or GitLab CI/CD to automate Terraform deployments in different AWS accounts, using environment-specific variables.
+
+The base infrastructure remains the same across all environments, defined in Terraform modules. Then variables passed to these modules base on the environment.
 
 ### Discuss any trade-offs considered when designing the solution.
 
+#### Self-Managed Kubernetes (EKS) vs. Fully Managed (Fargate)
+Trade-Off: Amazon EKS provides greater flexibility and control over the cluster but requires more management effort than AWS Fargate.
+
+Decision: Chose EKS for its ability to handle custom networking, logging, and monitoring integrations.
+
+#### AWS ALB vs. Nginx Ingress Controller
+Trade-Off: ALB is fully managed and integrates with AWS services, but it has additional costs compared to Nginx Ingress.
+
+Decision: Chose AWS ALB for better scalability, integration with AWS Certificate Manager, and reduced maintenance effort.
+
+#### Secrets in Kubernetes vs. AWS Secrets Manager
+Trade-Off: Storing secrets directly in Kubernetes is faster but less secure compared to AWS Secrets Manager.
+
+Decision: AWS Secrets Manager was chosen for security, automatic rotation, and centralized management.
+
 ### Explain how scalability, availability, security, and fault tolerance are addressed in the solution.
+
+#### Scalability:
+- Horizontal Pod Autoscaler (HPA): Automatically adjusts the number of pods based on CPU and memory usage.
+- AWS ALB Load Balancing: Distributes traffic efficiently across multiple pods.
+
+#### Availability:
+- Multi-AZ Deployment: The application is deployed across multiple availability zones to prevent downtime.
+- Pod Anti-Affinity Rules: Ensure that pods are scheduled across different nodes and zones for resilience.
+- Pod Disruption Budgets: Ensure that a minimum number of pods remain available during updates and maintenance.
+
+#### Security:
+- IAM Roles for Service Accounts (IRSA): to get access to aws securely.
+- Network Policies: Restrict communication between pods to limit attack surface.
+- Run as Non-Root: The application runs with a non-root user for security.
+- Security Groups: Control incoming and outcoming traffic to prevent unauthorized access.
+
+#### Fault Tolerance:
+- Health Probes (Liveness & Readiness): Ensure that unhealthy pods are automatically restarted.
+- Auto-Healing Mechanism: Kubernetes automatically replaces failed pods.
+- Monitoring: Prometheus and Grafana provide real-time monitoring.
 
 ## Screenshots
 Relevant screenshots related to the application, monitoring, deployments, and infrastructure setup can be found in the /assets/screenshots directory.
