@@ -64,3 +64,123 @@ resource "helm_release" "app_helm_release" {
     allowed_subnets = concat(module.vpc_main.public_subnets_cidr_blocks, module.vpc_main.private_subnets_cidr_blocks)
   })]
 }
+
+resource "kubernetes_config_map" "app_grafana_dashboard" {
+  metadata {
+    name      = "app-grafana-dashboard"
+    namespace = var.app_configurations.namespace
+    labels = {
+      grafana_dashboard = "1"
+    }
+  }
+
+  data = {
+    "app-grafana-dashboard.json" = <<EOF
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1625669782842,
+  "panels": [
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(flask_app_requests_total[5m])) by (method, endpoint, http_status)",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "{{ method }} - {{ endpoint }} ({{ http_status }})",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(flask_app_request_duration_seconds_bucket[5m])) by (le, method, endpoint))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "{{ method }} - {{ endpoint }}",
+          "refId": "A"
+        }
+      ],
+      "title": "95th Percentile Latency",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "App Dashboard",
+  "uid": null,
+  "version": 1
+}
+EOF
+  }
+}
