@@ -65,7 +65,24 @@ servicemonitor:
   port: http
 
 networkpolicy:
-  enabled: false
+  enabled: true
+  policy:
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: monitoring
+          - namespaceSelector:
+              matchLabels:
+                  kubernetes.io/metadata.name: "kube-system"
+%{ for subnet in allowed_subnets }
+          - ipBlock:
+              cidr: "${subnet}"
+%{ endfor }
+    egress: []
 
 affinity:
   podAntiAffinity:
@@ -96,4 +113,20 @@ securityContext:
     drop:
       - ALL
 
-env: []
+env:
+  - name: API_BASE_URL
+    value: "app.${public_domain}"
+  - name: LOG_LEVEL
+    value: "%{ if env == "dev" }debug%{ else }info%{ endif }"
+  - name: MAX_CONNECTIONS
+    value: "100"
+  - name: SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: "app-secrets"
+        key: "secret_key"
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: "app-secrets"
+        key: "db_password"

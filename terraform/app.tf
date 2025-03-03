@@ -61,5 +61,6 @@ resource "helm_release" "app_helm_release" {
     memory_limits   = var.app_configurations.memory_limits
     minReplicas     = var.app_configurations.minReplicas
     maxReplicas     = var.app_configurations.maxReplicas
+    allowed_subnets = concat(module.vpc_main.public_subnets_cidr_blocks, module.vpc_main.private_subnets_cidr_blocks)
   })]
 }
