@@ -22,7 +22,7 @@ The application is containerized using a lightweight Alpine-based Python image t
 
 ## GitHub Actions (.github)
 
-### Build and publish App Docker Image
+### Build and publish the App Docker Image
 This GitHub Actions workflow automates the process of building and pushing a Docker image for the application whenever changes are made to the main branch or when a new tag is pushed. It specifically triggers when changes occur in the app/ directory.
 
 ### Pylint Code Analysis
@@ -31,10 +31,10 @@ This GitHub Actions workflow automates static code analysis using Pylint to ensu
 ### Potential enhancements
 - Automated infrastructure deployment: Use terraform in GitHub Actions to provision, update, and destroy cloud resources automatically, ensuring infrastructure is always in the desired state.
 - Use GitHub Actions caching to speed up Python package installation and Docker builds.
-- Add security scanner tools like Trivy, tfsec, and etc.
+- Add security scanner tools like Trivy, tfsec, etc.
 
 ## Helm chart (/helm)
-The helm chart of the application. The Helm chart uses a values.yml file to configure the deployment. By default, these values are set for a basic deployment. However, when deploying through Terraform, we override these values dynamically to optimize resource allocation, autoscaling, networking and etc. based on the target environment (dev or production).
+The helm chart of the application. The Helm chart uses a values.yml file to configure the deployment. By default, these values are set for a basic deployment. However, when deploying through Terraform, we override these values dynamically to optimize resource allocation, autoscaling, networking, etc. based on the target environment (dev or production).
 
 ### Features
 - Support for podSecurityContext, securityContext, livenessProbe, ReadinessProbe, affinity, tolerations, volumes, envs and etc. 
@@ -47,7 +47,7 @@ The helm chart of the application. The Helm chart uses a values.yml file to conf
 - Deployment
 
 ## Terraform (/terraform)
-This directory includes Terraform files for deploying infrastructure on AWS. The various AWS services such as VPC, Route53, S3, EKS, IAM, ACM, ASM and etc. are utilized for the infrastructure.
+This directory includes Terraform files for deploying infrastructure on AWS. The various AWS services such as VPC, Route53, S3, EKS, IAM, ACM, ASM, etc. are utilized for the infrastructure.
 
 As AWS and infrastructure were not the primary requirements of the project, I kept them minimal and simple while still trying to adopt best practices to ensure a secure and scalable setup.
 
@@ -71,7 +71,7 @@ Secrets such as database passwords and application keys are securely stored in A
 The application is deployed using Helm, which simplifies Kubernetes deployments by using templates. The deployment is atomic, meaning it will roll back in case of failure. Configuration values such as CPU and memory limits, domain settings, and AWS region are dynamically passed using a template.
 
 #### Ingress Configuration and Load Balancing
-An AWS Application Load Balancer (ALB) is used as the ingress controller, exposing the application securely to the internet. TLS termination is handled using an SSL certificate issued by AWS Certificate Manager (ACM). The External DNS service automatically updates the application’s domain records in Amazon Route 53, ensuring smooth access.
+An AWS Application Load Balancer (ALB) is used as the ingress controller, exposing the application securely to the internet. TLS termination is handled using an SSL certificate issued by the AWS Certificate Manager (ACM). The External DNS service automatically updates the application’s domain records in Amazon Route 53, ensuring smooth access.
 
 #### Autoscaling Configuration
 The application scales dynamically based on CPU and memory utilization using the Horizontal Pod Autoscaler (HPA). This ensures that the system automatically adjusts the number of running pods based on workload demand, improving performance and cost efficiency.
@@ -80,7 +80,7 @@ The application scales dynamically based on CPU and memory utilization using the
 Strict network policies control incoming and outgoing traffic. The application allows incoming connections only from a monitoring namespace (such as Prometheus) and specific subnets, while egress (outgoing) traffic is blocked unless explicitly defined. This enhances security by restricting unauthorized access.
 
 #### Pod and Container Security
-The deployment enforces strict security settings, ensuring that the application runs with least privilege:
+The deployment enforces strict security settings, ensuring that the application runs with the least privilege:
 
 - Runs as a non-root user to reduce security risks.
 - Prevents privilege escalation to minimize attack vectors.
@@ -170,25 +170,25 @@ The design decisions for this project were centered around security, scalability
 - Secrets Management: AWS Secrets Manager was used in conjunction with External Secrets Operator to manage sensitive data securely.
 - CI/CD Automation: GitHub Actions were used to automate building the application to improve efficiency and minimize human errors.
 
-### Explain the networking strategy you would adopt to deploy production ready applications on AWS.
+### Explain the networking strategy you would adopt to deploy production-ready applications on AWS.
 A production-ready networking strategy on AWS involves multiple layers of security, scalability, and redundancy:
 
 - Custom VPC Design: A custom AWS VPC is used with private and public subnets to ensure proper segmentation.
 - Subnet Configuration:
   - Public Subnets: Used for external-facing services such as the ALB.
   - Private Subnets: Used for Kubernetes nodes, databases, and internal services.
-  - I would add more subnets and seprate app and db subnets.
+  - I would add more subnets and separate app and db subnets.
 - Load Balancing & Ingress: AWS ALB is used to manage incoming traffic with SSL termination via AWS ACM.
 - Network Security:
   - Security Groups: Strict rules are applied to allow only necessary traffic.
   - NAT Gateway: Used to allow private instances to access the internet while blocking inbound traffic.
-  - I would use WAF, security groups for pods and NACL.
+  - I would use WAF, security groups for pods, and NACL.
 - High Availability & Multi-AZ Strategy: Resources are spread across multiple availability zones to prevent a single point of failure.
 
 Also would consider different AWS accounts for different environments.
 
 ### Describe how you would implement a solution to grant access to various AWS services to the deployed application.
-The applications in this project needs access to AWS services like Secrets Manager and Route 53. Instead of storing credentials in the applications, AWS Identity and Access Management (IAM) roles are used:
+The applications in this project need access to AWS services like Secrets Manager and Route 53. Instead of storing credentials in the applications, AWS Identity and Access Management (IAM) roles are used:
 
 #### IAM Roles & Service Accounts
 The applications are assigned an IAM role using Kubernetes Service Accounts and AWS IAM integration (IAM Roles for Service Accounts - IRSA).
@@ -196,7 +196,7 @@ This allows the application to retrieve credentials dynamically without hardcodi
 
 #### External Secrets Operator
 Syncs secrets from AWS Secrets Manager into Kubernetes secrets.
-The applications retrieves database credentials and other sensitive values from these secrets.
+The applications retrieve database credentials and other sensitive values from these secrets.
 
 ### Describe how would you automate deploying the solution across multiple environments using CI/CD.
 To automate deployments across multiple environments, I would adopt a GitOps approach using tools like ArgoCD and FluxCD to deploy and manage applications on Kubernetes, ensuring they are always in sync with the desired state stored in Git. Additionally, for infrastructure provisioning, I would use CI/CD tools like GitHub Actions or GitLab CI/CD to manage Terraform deployments across different AWS accounts, applying different configurations for each environment.
@@ -211,7 +211,7 @@ Environment-Based Deployment Customization:
 #### CI/CD for Infrastructure Provisioning Using Terraform
 For infrastructure provisioning, I would use GitHub Actions or GitLab CI/CD to automate Terraform deployments in different AWS accounts, using environment-specific variables.
 
-The base infrastructure remains the same across all environments, defined in Terraform modules. Then variables passed to these modules base on the environment.
+The base infrastructure remains the same across all environments, defined in Terraform modules. Then variables are passed to these modules based on the environment.
 
 ### Discuss any trade-offs considered when designing the solution.
 
@@ -223,7 +223,7 @@ Decision: Chose EKS for its ability to handle custom networking, logging, and mo
 #### AWS ALB vs. Nginx Ingress Controller
 Trade-Off: ALB is fully managed and integrates with AWS services, but it has additional costs compared to Nginx Ingress.
 
-Decision: Chose AWS ALB for better scalability, integration with AWS Certificate Manager, and reduced maintenance effort.
+Decision: Choose AWS ALB for better scalability, integration with AWS Certificate Manager, and reduced maintenance effort.
 
 #### Secrets in Kubernetes vs. AWS Secrets Manager
 Trade-Off: Storing secrets directly in Kubernetes is faster but less secure compared to AWS Secrets Manager.
@@ -242,10 +242,10 @@ Decision: AWS Secrets Manager was chosen for security, automatic rotation, and c
 - Pod Disruption Budgets: Ensure that a minimum number of pods remain available during updates and maintenance.
 
 #### Security:
-- IAM Roles for Service Accounts (IRSA): to get access to aws securely.
-- Network Policies: Restrict communication between pods to limit attack surface.
+- IAM Roles for Service Accounts (IRSA): to get access to AWS securely.
+- Network Policies: Restrict communication between pods to limit the attack surface.
 - Run as Non-Root: The application runs with a non-root user for security.
-- Security Groups: Control incoming and outcoming traffic to prevent unauthorized access.
+- Security Groups: Control incoming and outgoing traffic to prevent unauthorized access.
 
 #### Fault Tolerance:
 - Health Probes (Liveness & Readiness): Ensure that unhealthy pods are automatically restarted.
