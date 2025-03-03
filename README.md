@@ -152,5 +152,19 @@ For example:
 https://app.myt-devops-assignment.myclnet.com/
 ```
 
+## Assignment questions
+
+### Explain the decisions made during the design and implementation of the solution.
+
+### Explain the networking strategy you would adopt to deploy production ready applications on AWS.
+
+### Describe how you would implement a solution to grant access to various AWS services to the deployed application.
+
+### Describe how would you automate deploying the solution across multiple environments using CI/CD.
+
+### Discuss any trade-offs considered when designing the solution.
+
+### Explain how scalability, availability, security, and fault tolerance are addressed in the solution.
+
 ## Screenshots
 Relevant screenshots related to the application, monitoring, deployments, and infrastructure setup can be found in the /assets/screenshots directory.
