@@ -13,7 +13,7 @@ The application is containerized using a lightweight Alpine-based Python image t
 
 - Runs as a non-root user (UID 1000) for better security.
 - Installs dependencies without caching to keep the image minimal.
-- Prevents Python from writing .pyc files
+- Prevents Python from writing .pyc files.
 - Waitress WSGI server is used for production deployment instead of Flask’s built-in server.
 
 ### Potential enhancements
@@ -34,6 +34,17 @@ This GitHub Actions workflow automates static code analysis using Pylint to ensu
 - Add security scanner tools like Trivy, tfsec, and etc.
 
 ## Helm chart (/helm)
+The helm chart of the application. The Helm chart uses a values.yml file to configure the deployment. By default, these values are set for a basic deployment. However, when deploying through Terraform, we override these values dynamically to optimize resource allocation, autoscaling, networking and etc. based on the target environment (dev or production).
+
+### Features
+- Support for podSecurityContext, securityContext, livenessProbe, ReadinessProbe, affinity, tolerations, volumes, envs and etc. 
+- Ingress
+- HorizontalPodAutoscaler
+- PodDisruptionBudget
+- ServiceMonitor
+- NetworkPolicy
+- Service
+- Deployment
 
 ## Terraform (/terraform)
 
