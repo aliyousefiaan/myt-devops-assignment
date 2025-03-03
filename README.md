@@ -133,12 +133,23 @@ export AWS_ACCESS_KEY_ID="<YOUR_AWS_ACCESS_KEY_ID>"
 export AWS_SECRET_ACCESS_KEY="<YOUR_AWS_SECRET_ACCESS_KEY>"
 ```
 
+### Customize
+To edit the resource sizes and configurations, modify the dev.tfvars file in the terraform directory.
+You can change the S3 bucket that Terraform stores the state in by modifying the terraform/versions.tf file.
+
 ### Use Terraform to build infrastructure on AWS
 ```bash
 cd terraform
 terraform init
 terraform workspace new dev / terraform workspace select dev
 terraform apply --var-file=dev.tfvars
+```
+
+### Post check
+After running Terraform, you can verify that the app is running by visiting the domain specified in the tfvars file.
+For example:
+```
+https://app.myt-devops-assignment.myclnet.com/
 ```
 
 ## Screenshots
