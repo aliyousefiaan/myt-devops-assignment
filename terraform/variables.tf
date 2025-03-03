@@ -34,6 +34,7 @@ variable "eks_main_configurations" {
       version                 = string
       grafana_storage_size    = string
       prometheus_storage_size = string
+      prometheus_retention    = string
       grafana_resources = object({
         requests = object({
           cpu    = string

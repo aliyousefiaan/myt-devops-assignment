@@ -317,6 +317,11 @@ resource "helm_release" "kube_prometheus" {
               memory = var.eks_main_configurations.kube_prometheus.prometheus_resources.limits.memory
             }
           }
+          ruleSelectorNilUsesHelmValues           = false
+          serviceMonitorSelectorNilUsesHelmValues = false
+          podMonitorSelectorNilUsesHelmValues     = false
+          probeSelectorNilUsesHelmValues          = false
+          retention                               = var.eks_main_configurations.kube_prometheus.prometheus_retention
           storageSpec = {
             volumeClaimTemplate = {
               spec = {

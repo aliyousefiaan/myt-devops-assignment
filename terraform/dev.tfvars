@@ -17,6 +17,7 @@ eks_main_configurations = {
     version                 = "69.6.0"
     grafana_storage_size    = "1Gi"
     prometheus_storage_size = "1Gi"
+    prometheus_retention    = "5d"
     grafana_resources = {
       requests = {
         cpu    = "100m"
