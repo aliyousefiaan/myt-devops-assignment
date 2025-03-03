@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: {{ include "helm.fullname" . }}
+      {{- include "helm.selectorLabels" . | nindent 6 }}
   {{- with .Values.networkpolicy.policy.policyTypes }}
   policyTypes:
     {{- toYaml . | nindent 4 }}

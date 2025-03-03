@@ -75,9 +75,6 @@ networkpolicy:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: monitoring
-          - namespaceSelector:
-              matchLabels:
-                  kubernetes.io/metadata.name: "kube-system"
 %{ for subnet in allowed_subnets }
           - ipBlock:
               cidr: "${subnet}"

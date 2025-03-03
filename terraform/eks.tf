@@ -10,9 +10,16 @@ module "eks_main" {
   cluster_endpoint_private_access = true
 
   cluster_addons = {
-    coredns            = {}
-    kube-proxy         = {}
-    vpc-cni            = {}
+    coredns    = {}
+    kube-proxy = {}
+    vpc-cni = {
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+        env = {
+          NETWORK_POLICY_ENFORCING_MODE = "standard"
+        }
+      })
+    }
     aws-ebs-csi-driver = {}
   }
 
