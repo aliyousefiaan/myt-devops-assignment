@@ -46,6 +46,9 @@ The helm chart of the application. The Helm chart uses a values.yml file to conf
 - Service
 - Deployment
 
+### Potential enhancements
+- Use a ConfigMap to manage the application configurations.
+
 ## Terraform (/terraform)
 This directory includes Terraform files for deploying infrastructure on AWS. The various AWS services such as VPC, Route53, S3, EKS, IAM, ACM, ASM, etc. are utilized for the infrastructure.
 
@@ -120,6 +123,7 @@ Kubernetes uses probes to determine if a pod is healthy and ready to serve traff
 - Use Karpenter or Cluster Autoscaler to Ensure that EKS scales nodes up/down as needed.
 - Use WAF on ALB.
 - Use security group for pod feature to enhance security.
+- Use DynamoDB to lock the Terraform state.
 
 ## Deploy
 ### Pre-requirements
@@ -194,6 +198,8 @@ The applications in this project need access to AWS services like Secrets Manage
 The applications are assigned an IAM role using Kubernetes Service Accounts and AWS IAM integration (IAM Roles for Service Accounts - IRSA).
 This allows the application to retrieve credentials dynamically without hardcoding secrets.
 
+Note: The new EKS Pod Identity feature eliminates the need for IRSA, providing a more streamlined approach to managing IAM permissions for pods in Amazon EKS.
+
 #### External Secrets Operator
 Syncs secrets from AWS Secrets Manager into Kubernetes secrets.
 The applications retrieve database credentials and other sensitive values from these secrets.
@@ -202,7 +208,7 @@ The applications retrieve database credentials and other sensitive values from t
 To automate deployments across multiple environments, I would adopt a GitOps approach using tools like ArgoCD and FluxCD to deploy and manage applications on Kubernetes, ensuring they are always in sync with the desired state stored in Git. Additionally, for infrastructure provisioning, I would use CI/CD tools like GitHub Actions or GitLab CI/CD to manage Terraform deployments across different AWS accounts, applying different configurations for each environment.
 
 #### GitOps for Kubernetes Deployment
-For managing application deployments, I would leverage GitOps tools like ArgoCD or FluxCD, which continuously monitor Git repositories for changes and automatically apply updates to Kubernetes.
+To manage application deployments, I would leverage GitOps tools like ArgoCD or FluxCD, which continuously monitor Git repositories for changes and automatically apply updates to Kubernetes.
 
 Environment-Based Deployment Customization:
 - Use separate branches or directories in the Git repository for dev, staging, and production environments.
