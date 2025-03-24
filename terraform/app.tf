@@ -29,14 +29,14 @@ resource "kubernetes_manifest" "app_external_secret" {
         {
           "secretKey" = "db_password"
           "remoteRef" = {
-            "key"      = "${var.environment}/app/secrets"
+            "key"      = "${var.environment}/app/secrets-${random_string.app_secrets_suffix.result}"
             "property" = "db_password"
           }
         },
         {
           "secretKey" = "secret_key"
           "remoteRef" = {
-            "key"      = "${var.environment}/app/secrets"
+            "key"      = "${var.environment}/app/secrets-${random_string.app_secrets_suffix.result}"
             "property" = "secret_key"
           }
         }

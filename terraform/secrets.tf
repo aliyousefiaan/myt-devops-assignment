@@ -10,8 +10,14 @@ resource "random_password" "app_db_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+resource "random_string" "app_secrets_suffix" {
+  length  = 6
+  upper   = false
+  special = false
+}
+
 resource "aws_secretsmanager_secret" "app_secrets" {
-  name = "${var.environment}/app/secrets"
+  name = "${var.environment}/app/secrets-${random_string.app_secrets_suffix.result}"
   tags = local.tags
 }
 
