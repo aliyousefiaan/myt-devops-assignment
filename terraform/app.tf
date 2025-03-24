@@ -2,6 +2,9 @@ resource "kubernetes_namespace" "app_ns" {
   metadata {
     name = var.app_configurations.namespace
   }
+  depends_on = [
+    module.eks_main
+  ]
 }
 
 resource "kubernetes_manifest" "app_external_secret" {
@@ -40,6 +43,9 @@ resource "kubernetes_manifest" "app_external_secret" {
       ]
     }
   }
+  depends_on = [
+    helm_release.eks_main_external_secrets
+  ]
 }
 
 resource "helm_release" "app_helm_release" {
@@ -63,6 +69,9 @@ resource "helm_release" "app_helm_release" {
     maxReplicas     = var.app_configurations.maxReplicas
     allowed_subnets = concat(module.vpc_main.public_subnets_cidr_blocks, module.vpc_main.private_subnets_cidr_blocks)
   })]
+  depends_on = [
+    module.eks_main
+  ]
 }
 
 resource "kubernetes_config_map" "app_grafana_dashboard" {
@@ -183,4 +192,7 @@ resource "kubernetes_config_map" "app_grafana_dashboard" {
 }
 EOF
   }
+  depends_on = [
+    helm_release.kube_prometheus
+  ]
 }
