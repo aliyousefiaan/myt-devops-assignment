@@ -99,21 +99,6 @@ module "irsa_eks_main_aws_load_balancer_controller" {
   tags = local.tags
 }
 
-# EKS - main - metrics-server
-resource "helm_release" "eks_main_metrics_server" {
-  name             = "metrics-server"
-  repository       = "https://kubernetes-sigs.github.io/metrics-server"
-  chart            = "metrics-server"
-  version          = var.eks_main_configurations.metrics_server_version
-  namespace        = "kube-system"
-  create_namespace = false
-  atomic           = true
-
-  depends_on = [
-    module.eks_main
-  ]
-}
-
 resource "helm_release" "eks_main_aws_load_balancer_controller" {
   name             = "aws-load-balancer-controller"
   repository       = "https://aws.github.io/eks-charts"
@@ -140,6 +125,21 @@ resource "helm_release" "eks_main_aws_load_balancer_controller" {
 
   depends_on = [
     module.eks_main, module.irsa_eks_main_aws_load_balancer_controller
+  ]
+}
+
+# EKS - main - metrics-server
+resource "helm_release" "eks_main_metrics_server" {
+  name             = "metrics-server"
+  repository       = "https://kubernetes-sigs.github.io/metrics-server"
+  chart            = "metrics-server"
+  version          = var.eks_main_configurations.metrics_server_version
+  namespace        = "kube-system"
+  create_namespace = false
+  atomic           = true
+
+  depends_on = [
+    module.eks_main
   ]
 }
 
